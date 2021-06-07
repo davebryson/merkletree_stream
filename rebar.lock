@@ -1,0 +1,4 @@
+[{<<"flat_tree">>,
+  {git,"git://github.com/davebryson/flat_tree.git",
+       {ref,"f85258cfe9ffea6ad4c0f306365e30a364de20c6"}},
+  0}].
