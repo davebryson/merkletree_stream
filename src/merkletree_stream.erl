@@ -8,20 +8,24 @@
 -export([
     new/0,
     new/1,
+    create_tree/1,
     write/2,
-    run_test/0,
-    run_test_2/0
+    print_tree/1
 ]).
 
 %% @doc Create a new Tree
 new() ->
     #state{}.
 
-%% @doc Create a new tree building off of existing roots
+%% @doc Create a new tree building off existing roots
 new(Roots) ->
     #state{roots = Roots}.
 
-%% @doc Write data to the tree
+%% Create a new tree from data
+create_tree(Data) when is_list(Data) ->
+    make_tree(Data, new()).
+
+%% @doc Write data to a tree
 write(Data, #state{nodes = Nodes, roots = Roots, blocks = Blocks}) ->
     Index = 2 * Blocks,
     Leaf = #node{
@@ -38,9 +42,19 @@ write(Data, #state{nodes = Nodes, roots = Roots, blocks = Blocks}) ->
         blocks = Blocks + 1
     }.
 
+%% @doc Create a tree from some data and print out the nodes and roots
+print_tree(Data) when is_list(Data) ->
+    S = create_tree(Data),
+    io:format("~n******* Nodes ********~n"),
+    lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S#state.nodes),
+    io:format("~n******* Roots ********~n"),
+    lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S#state.roots).
+
 %%%
 %%% Private
 %%%
+
+%% @private build up the tree during writes
 build_tree([], Nodes) ->
     %% No roots to process
     {[], Nodes};
@@ -66,35 +80,12 @@ build_tree([R, L | Rest] = Root, Nodes) ->
             end
     end.
 
-run_test() ->
-    S = new(),
-    S1 = write(<<"hello">>, S),
-    S2 = write(<<"washed">>, S1),
-    S3 = write(<<"world">>, S2),
-    %S4 = write(<<"d">>, S3),
-    %S5 = write(<<"e">>, S4),
-
-    %% SHOULD Contains the indices: 0,2,1,4
-
-    %lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S5#state.nodes),
-    %io:format("~~~~~~~~~~~~~~~~~~~n"),
-    %lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S5#state.roots).
-    lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S3#state.nodes),
-    io:format("***************~n"),
-    lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S3#state.roots).
-
-run_test_2() ->
-    Data = [<<"c0">>, <<"c1">>, <<"c2">>, <<"c3">>, <<"c4">>, <<"c5">>, <<"c6">>, <<"c7">>],
-    S = run_build(Data, new()),
-    lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S#state.nodes),
-    io:format("***************~n"),
-    lists:foreach(fun(N) -> io:format("~n~p~n", [N]) end, S#state.roots).
-
-run_build([], State) ->
+%% @private Helper to build a tree from data
+make_tree([], State) ->
     State;
-run_build([H | T], State) ->
+make_tree([H | T], State) ->
     S = write(H, State),
-    run_build(T, S).
+    make_tree(T, S).
 
 %% @private Hash data for a leaf
 leaf(Data) when is_binary(Data) ->

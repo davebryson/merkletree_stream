@@ -7,3 +7,6 @@ build:
 
 clean:
 	rebar3 clean
+
+shell:
+	rebar3 shell
